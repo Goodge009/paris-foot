@@ -1,62 +1,354 @@
-⚽
-Paris Foot Pro
-Analyse
-Parier
-Historique
-Bankroll
-Choisir un match
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Paris Foot Pro</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #fff; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a2a4a; position: sticky; top: 0; z-index: 10; }
+  .header h1 { font-size: 18px; font-weight: 700; }
+  .header span { font-size: 22px; }
+  .tabs { display: flex; background: #1a1a2e; border-bottom: 1px solid #2a2a4a; overflow-x: auto; }
+  .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: #888; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab.active { color: #4fc3f7; border-bottom-color: #4fc3f7; }
+  .content { padding: 16px; max-width: 600px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .card-title { font-size: 13px; color: #888; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+  select, input { width: 100%; padding: 10px 12px; background: #0f0f1a; border: 1px solid #2a2a4a; border-radius: 8px; color: #fff; font-size: 14px; margin-bottom: 10px; }
+  button { width: 100%; padding: 12px; background: #4fc3f7; color: #0f0f1a; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  button:active { opacity: 0.8; }
+  .btn-danger { background: #ef5350; color: #fff; }
+  .btn-success { background: #66bb6a; color: #0f0f1a; }
+  .proba-bar { display: flex; height: 36px; border-radius: 8px; overflow: hidden; gap: 2px; margin: 12px 0; }
+  .bar-h { background: #4fc3f7; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #0f0f1a; }
+  .bar-d { background: #ffb74d; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #0f0f1a; }
+  .bar-a { background: #ef5350; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+  .stat-box { background: #0f0f1a; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-val { font-size: 20px; font-weight: 700; color: #4fc3f7; }
+  .stat-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  .verdict { background: #0d2137; border: 1px solid #4fc3f7; border-radius: 8px; padding: 12px; margin-top: 12px; }
+  .verdict-title { font-size: 12px; color: #4fc3f7; font-weight: 600; margin-bottom: 4px; }
+  .verdict-text { font-size: 14px; color: #fff; }
+  .teams-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .team-box { background: #0f0f1a; border-radius: 8px; padding: 10px; }
+  .team-name { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #4fc3f7; }
+  .team-stat { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; border-bottom: 1px solid #2a2a4a; }
+  .team-stat:last-child { border: none; }
+  .team-stat span:last-child { font-weight: 600; }
+  .form-dots { display: flex; gap: 3px; margin-top: 6px; }
+  .dot { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+  .dot-w { background: #66bb6a; color: #0f0f1a; }
+  .dot-d { background: #ffb74d; color: #0f0f1a; }
+  .dot-l { background: #ef5350; color: #fff; }
+  .cotes-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+  .cote-box { background: #0f0f1a; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #2a2a4a; }
+  .cote-box.good { border-color: #66bb6a; }
+  .cote-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .cote-val { font-size: 18px; font-weight: 700; }
+  .cote-box.good .cote-val { color: #66bb6a; }
+  .pari-item { background: #0f0f1a; border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid #4fc3f7; }
+  .pari-item.gagné { border-left-color: #66bb6a; }
+  .pari-item.perdu { border-left-color: #ef5350; }
+  .pari-item.en-cours { border-left-color: #ffb74d; }
+  .pari-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .pari-match { font-size: 14px; font-weight: 600; }
+  .pari-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .status-gagné { background: #1b3a1b; color: #66bb6a; }
+  .status-perdu { background: #3a1b1b; color: #ef5350; }
+  .status-en-cours { background: #3a2e1b; color: #ffb74d; }
+  .pari-detail { font-size: 12px; color: #888; }
+  .pari-montants { display: flex; gap: 16px; margin-top: 6px; font-size: 13px; }
+  .bankroll-display { text-align: center; padding: 20px; }
+  .bankroll-val { font-size: 42px; font-weight: 700; color: #4fc3f7; }
+  .bankroll-lbl { font-size: 14px; color: #888; margin-top: 4px; }
+  .stats-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+  .empty { text-align: center; color: #888; padding: 40px 20px; font-size: 14px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: #1a2a3a; color: #4fc3f7; margin-right: 4px; }
+</style>
+</head>
+<body>
 
-PSG vs Real Madrid — Ligue des Champions
-Statistiques
-🏠 PSG
-Points
-72
-Buts
-67
-Concédés
-28
-xG/match
-2.1
-W
-W
-D
-W
-L
-✈️ Real Madrid
-Points
-78
-Buts
-72
-Concédés
-25
-xG/match
-2.3
-W
-W
-W
-D
-W
-Probabilités
-45%
-25%
-30%
-2.7
-Buts attendus
-64%
-Les 2 scorent
-71%
-+2,5 buts
-UCL
-Compétition
-🧠 Recommandation
-Victoire PSG ou nul — cote intéressante sur 1X
-Cotes suggérées
-Victoire PSG
-2.05
-Match nul
-3.40
-Victoire Real
-3.20
-+2,5 buts
-1.65
-➕ Parier sur ce match
+<div class="header">
+  <span>⚽</span>
+  <h1>Paris Foot Pro</h1>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('analyse')">Analyse</div>
+  <div class="tab" onclick="showTab('parier')">Parier</div>
+  <div class="tab" onclick="showTab('historique')">Historique</div>
+  <div class="tab" onclick="showTab('bankroll')">Bankroll</div>
+</div>
+
+<div class="content">
+
+  <!-- ANALYSE -->
+  <div class="section active" id="tab-analyse">
+    <div class="card">
+      <div class="card-title">Choisir un match</div>
+      <select id="match-select" onchange="analyzeMatch()">
+        <option value="0">PSG vs Real Madrid — Ligue des Champions</option>
+        <option value="1">Manchester City vs Arsenal — Premier League</option>
+        <option value="2">Bayern vs Dortmund — Bundesliga</option>
+        <option value="3">Barça vs Atlético — La Liga</option>
+        <option value="4">Liverpool vs Chelsea — Premier League</option>
+        <option value="5">Inter vs Juventus — Serie A</option>
+      </select>
+    </div>
+
+    <div class="card" id="analyse-result">
+      <div class="card-title">Statistiques</div>
+      <div class="teams-row" id="teams-row"></div>
+      <div class="card-title">Probabilités</div>
+      <div class="proba-bar" id="proba-bar"></div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="verdict" id="verdict"></div>
+      <div class="card-title" style="margin-top:12px">Cotes suggérées</div>
+      <div class="cotes-row" id="cotes-row"></div>
+      <button style="margin-top:12px" onclick="preFillPari()">➕ Parier sur ce match</button>
+    </div>
+  </div>
+
+  <!-- PARIER -->
+  <div class="section" id="tab-parier">
+    <div class="card">
+      <div class="card-title">Enregistrer un pari</div>
+      <input type="text" id="p-match" placeholder="Match (ex: PSG vs Real Madrid)">
+      <input type="text" id="p-pari" placeholder="Type de pari (ex: Victoire PSG)">
+      <input type="number" id="p-mise" placeholder="Mise (€)" step="0.01" min="0">
+      <input type="number" id="p-cote" placeholder="Cote (ex: 2.05)" step="0.01" min="1">
+      <select id="p-status">
+        <option value="en-cours">En cours</option>
+        <option value="gagné">Gagné ✅</option>
+        <option value="perdu">Perdu ❌</option>
+      </select>
+      <button onclick="ajouterPari()">Enregistrer le pari</button>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="section" id="tab-historique">
+    <div id="historique-list"></div>
+  </div>
+
+  <!-- BANKROLL -->
+  <div class="section" id="tab-bankroll">
+    <div class="card">
+      <div class="bankroll-display">
+        <div class="bankroll-val" id="bankroll-val">0 €</div>
+        <div class="bankroll-lbl">Bankroll actuelle</div>
+      </div>
+      <div class="stats-summary" id="stats-summary"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Définir ma bankroll de départ</div>
+      <input type="number" id="bankroll-input" placeholder="Montant (€)" step="1" min="0">
+      <button onclick="setBankroll()">Mettre à jour</button>
+    </div>
+    <div class="card" style="margin-top:8px">
+      <button class="btn-danger" onclick="resetData()">🗑️ Effacer toutes les données</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MATCHES = [
+  { home:"PSG", away:"Real Madrid", comp:"UCL",
+    hStats:{pts:72,buts:67,conc:28,xg:2.1,forme:["W","W","D","W","L"]},
+    aStats:{pts:78,buts:72,conc:25,xg:2.3,forme:["W","W","W","D","W"]},
+    proba:[45,25,30], buts:2.7, btts:64, o25:71,
+    verdict:"Victoire PSG ou nul — cote intéressante sur 1X",
+    cotes:[{l:"Victoire PSG",v:"2.05",g:false},{l:"Match nul",v:"3.40",g:true},{l:"Victoire Real",v:"3.20",g:false},{l:"+2,5 buts",v:"1.65",g:true}]
+  },
+  { home:"Man City", away:"Arsenal", comp:"PL",
+    hStats:{pts:80,buts:74,conc:22,xg:2.5,forme:["W","W","W","W","D"]},
+    aStats:{pts:75,buts:68,conc:30,xg:2.0,forme:["W","D","W","W","L"]},
+    proba:[52,22,26], buts:2.9, btts:60, o25:74,
+    verdict:"Man City favori à domicile — pari sur victoire Man City",
+    cotes:[{l:"Victoire City",v:"1.75",g:true},{l:"Match nul",v:"3.60",g:false},{l:"Victoire Arsenal",v:"4.10",g:false},{l:"+2,5 buts",v:"1.55",g:true}]
+  },
+  { home:"Bayern", away:"Dortmund", comp:"BL",
+    hStats:{pts:76,buts:85,conc:32,xg:2.8,forme:["W","W","W","W","W"]},
+    aStats:{pts:60,buts:62,conc:48,xg:1.8,forme:["W","L","W","D","L"]},
+    proba:[62,20,18], buts:3.4, btts:72, o25:83,
+    verdict:"Bayern très favori + match avec buts — pari sur victoire Bayern et +2,5",
+    cotes:[{l:"Victoire Bayern",v:"1.45",g:true},{l:"Match nul",v:"4.20",g:false},{l:"Victoire Dortmund",v:"6.50",g:false},{l:"+3,5 buts",v:"1.90",g:true}]
+  },
+  { home:"Barça", away:"Atlético", comp:"LL",
+    hStats:{pts:74,buts:70,conc:35,xg:2.2,forme:["D","W","W","L","W"]},
+    aStats:{pts:68,buts:52,conc:28,xg:1.5,forme:["W","D","D","W","D"]},
+    proba:[42,30,28], buts:2.2, btts:55, o25:58,
+    verdict:"Match équilibré — le nul est probable, cote attractive sur X",
+    cotes:[{l:"Victoire Barça",v:"2.20",g:false},{l:"Match nul",v:"3.10",g:true},{l:"Victoire Atlético",v:"3.30",g:false},{l:"-2,5 buts",v:"1.80",g:true}]
+  },
+  { home:"Liverpool", away:"Chelsea", comp:"PL",
+    hStats:{pts:73,buts:69,conc:30,xg:2.3,forme:["W","W","L","W","W"]},
+    aStats:{pts:65,buts:58,conc:38,xg:1.9,forme:["D","W","L","W","D"]},
+    proba:[48,26,26], buts:2.8, btts:66, o25:72,
+    verdict:"Liverpool légèrement favori — les deux équipes marquent probable",
+    cotes:[{l:"Victoire Liverpool",v:"1.90",g:true},{l:"Match nul",v:"3.50",g:false},{l:"Victoire Chelsea",v:"3.80",g:false},{l:"Les 2 scorent",v:"1.70",g:true}]
+  },
+  { home:"Inter", away:"Juventus", comp:"SA",
+    hStats:{pts:77,buts:66,conc:26,xg:2.2,forme:["W","W","W","D","W"]},
+    aStats:{pts:70,buts:55,conc:28,xg:1.8,forme:["W","D","W","W","L"]},
+    proba:[44,32,24], buts:2.1, btts:52, o25:55,
+    verdict:"Derby serré — le nul ou victoire Inter, match défensif probable",
+    cotes:[{l:"Victoire Inter",v:"2.10",g:true},{l:"Match nul",v:"3.00",g:true},{l:"Victoire Juve",v:"3.50",g:false},{l:"-2,5 buts",v:"1.75",g:true}]
+  }
+];
+
+let paris = JSON.parse(localStorage.getItem('paris') || '[]');
+let bankroll = parseFloat(localStorage.getItem('bankroll') || '0');
+
+function save() {
+  localStorage.setItem('paris', JSON.stringify(paris));
+  localStorage.setItem('bankroll', bankroll.toString());
+}
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'historique') renderHistorique();
+  if (id === 'bankroll') renderBankroll();
+}
+
+function formDot(r) {
+  const cls = r==='W'?'dot-w':r==='D'?'dot-d':'dot-l';
+  return `<div class="dot ${cls}">${r}</div>`;
+}
+
+function analyzeMatch() {
+  const idx = parseInt(document.getElementById('match-select').value);
+  const m = MATCHES[idx];
+  document.getElementById('teams-row').innerHTML = `
+    <div class="team-box">
+      <div class="team-name">🏠 ${m.home}</div>
+      <div class="team-stat"><span>Points</span><span>${m.hStats.pts}</span></div>
+      <div class="team-stat"><span>Buts</span><span>${m.hStats.buts}</span></div>
+      <div class="team-stat"><span>Concédés</span><span>${m.hStats.conc}</span></div>
+      <div class="team-stat"><span>xG/match</span><span>${m.hStats.xg}</span></div>
+      <div class="form-dots">${m.hStats.forme.map(formDot).join('')}</div>
+    </div>
+    <div class="team-box">
+      <div class="team-name">✈️ ${m.away}</div>
+      <div class="team-stat"><span>Points</span><span>${m.aStats.pts}</span></div>
+      <div class="team-stat"><span>Buts</span><span>${m.aStats.buts}</span></div>
+      <div class="team-stat"><span>Concédés</span><span>${m.aStats.conc}</span></div>
+      <div class="team-stat"><span>xG/match</span><span>${m.aStats.xg}</span></div>
+      <div class="form-dots">${m.aStats.forme.map(formDot).join('')}</div>
+    </div>`;
+  document.getElementById('proba-bar').innerHTML = `
+    <div class="bar-h" style="width:${m.proba[0]}%">${m.proba[0]}%</div>
+    <div class="bar-d" style="width:${m.proba[1]}%">${m.proba[1]}%</div>
+    <div class="bar-a" style="width:${m.proba[2]}%">${m.proba[2]}%</div>`;
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${m.buts}</div><div class="stat-lbl">Buts attendus</div></div>
+    <div class="stat-box"><div class="stat-val">${m.btts}%</div><div class="stat-lbl">Les 2 scorent</div></div>
+    <div class="stat-box"><div class="stat-val">${m.o25}%</div><div class="stat-lbl">+2,5 buts</div></div>
+    <div class="stat-box"><div class="stat-val">${m.comp}</div><div class="stat-lbl">Compétition</div></div>`;
+  document.getElementById('verdict').innerHTML = `<div class="verdict-title">🧠 Recommandation</div><div class="verdict-text">${m.verdict}</div>`;
+  document.getElementById('cotes-row').innerHTML = m.cotes.map(c=>`
+    <div class="cote-box ${c.g?'good':''}">
+      <div class="cote-label">${c.l}</div>
+      <div class="cote-val">${c.v}</div>
+    </div>`).join('');
+}
+
+function preFillPari() {
+  const idx = parseInt(document.getElementById('match-select').value);
+  const m = MATCHES[idx];
+  showTab('parier');
+  document.querySelectorAll('.tab')[1].classList.add('active');
+  document.querySelectorAll('.tab')[0].classList.remove('active');
+  document.getElementById('p-match').value = `${m.home} vs ${m.away}`;
+  const best = m.cotes.find(c=>c.g);
+  if (best) {
+    document.getElementById('p-pari').value = best.l;
+    document.getElementById('p-cote').value = best.v;
+  }
+}
+
+function ajouterPari() {
+  const match = document.getElementById('p-match').value.trim();
+  const pari = document.getElementById('p-pari').value.trim();
+  const mise = parseFloat(document.getElementById('p-mise').value);
+  const cote = parseFloat(document.getElementById('p-cote').value);
+  const status = document.getElementById('p-status').value;
+  if (!match || !pari || !mise || !cote) { alert('Remplis tous les champs !'); return; }
+  const gain = status === 'gagné' ? +(mise * cote - mise).toFixed(2) : status === 'perdu' ? -mise : 0;
+  paris.unshift({ id: Date.now(), match, pari, mise, cote, status, gain, date: new Date().toLocaleDateString('fr-FR') });
+  if (status === 'gagné') bankroll += gain;
+  if (status === 'perdu') bankroll -= mise;
+  save();
+  document.getElementById('p-match').value = '';
+  document.getElementById('p-pari').value = '';
+  document.getElementById('p-mise').value = '';
+  document.getElementById('p-cote').value = '';
+  alert('✅ Pari enregistré !');
+}
+
+function renderHistorique() {
+  const el = document.getElementById('historique-list');
+  if (!paris.length) { el.innerHTML = '<div class="empty">Aucun pari enregistré<br>Commence par analyser un match !</div>'; return; }
+  el.innerHTML = paris.map(p => `
+    <div class="pari-item ${p.status}">
+      <div class="pari-header">
+        <div class="pari-match">${p.match}</div>
+        <div class="pari-status status-${p.status}">${p.status === 'gagné' ? '✅ Gagné' : p.status === 'perdu' ? '❌ Perdu' : '⏳ En cours'}</div>
+      </div>
+      <div class="pari-detail">${p.pari} — Cote ${p.cote} — ${p.date}</div>
+      <div class="pari-montants">
+        <span>Mise: <strong>${p.mise}€</strong></span>
+        ${p.status !== 'en-cours' ? `<span style="color:${p.gain>=0?'#66bb6a':'#ef5350'}">Gain/Perte: <strong>${p.gain>=0?'+':''}${p.gain}€</strong></span>` : ''}
+      </div>
+      <button class="btn-danger" style="margin-top:8px;padding:6px;font-size:12px" onclick="supprimerPari(${p.id})">Supprimer</button>
+    </div>`).join('');
+}
+
+function supprimerPari(id) {
+  paris = paris.filter(p => p.id !== id);
+  save(); renderHistorique();
+}
+
+function renderBankroll() {
+  document.getElementById('bankroll-input').value = bankroll;
+  document.getElementById('bankroll-val').textContent = bankroll.toFixed(2) + ' €';
+  const termines = paris.filter(p => p.status !== 'en-cours');
+  const gagnes = paris.filter(p => p.status === 'gagné');
+  const totalMise = termines.reduce((s,p) => s + p.mise, 0);
+  const totalGain = termines.reduce((s,p) => s + p.gain, 0);
+  const txReussite = termines.length ? Math.round(gagnes.length / termines.length * 100) : 0;
+  document.getElementById('stats-summary').innerHTML = `
+    <div class="stat-box"><div class="stat-val">${paris.length}</div><div class="stat-lbl">Paris total</div></div>
+    <div class="stat-box"><div class="stat-val">${txReussite}%</div><div class="stat-lbl">Taux réussite</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:${totalGain>=0?'#66bb6a':'#ef5350'}">${totalGain>=0?'+':''}${totalGain.toFixed(2)}€</div><div class="stat-lbl">Bilan</div></div>`;
+}
+
+function setBankroll() {
+  bankroll = parseFloat(document.getElementById('bankroll-input').value) || 0;
+  save(); renderBankroll();
+}
+
+function resetData() {
+  if (confirm('Effacer tous tes paris et ta bankroll ?')) {
+    paris = []; bankroll = 0; save(); renderHistorique(); renderBankroll();
+  }
+}
+
+analyzeMatch();
+renderBankroll();
+</script>
+</body>
+</html>
